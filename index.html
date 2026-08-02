@@ -1293,24 +1293,41 @@ const CONFIG = {
   const cForm = el('form', { class: 'contact-form reveal-right' });
   cForm.innerHTML = `
     <div class="form-row">
-      <input type="text" placeholder="First name" />
-      <input type="text" placeholder="Last name" />
+      <input id="cf-first" type="text" placeholder="First name" required />
+      <input id="cf-last" type="text" placeholder="Last name" />
     </div>
-    <input type="email" placeholder="Email address" />
-    <input type="tel" placeholder="Phone number" />
-    <select>
+    <input id="cf-email" type="email" placeholder="Email address" required />
+    <input id="cf-phone" type="tel" placeholder="Phone number" />
+    <select id="cf-interest">
       <option value="" disabled selected>I'm interested in...</option>
       ${C.contact.inquiryOptions.map(o => `<option>${o}</option>`).join('')}
     </select>
-    <textarea placeholder="Your message"></textarea>
-    <button type="submit" class="btn-primary" style="width:100%; padding:14px;"><i class="ti ti-brand-telegram" style="margin-right:6px;"></i>Register via Telegram</button>
-    <div class="form-success" id="form-success"><i class="ti ti-check" aria-hidden="true"></i> Redirecting you to Telegram — @nailmammadzada</div>
+    <textarea id="cf-message" placeholder="Your message"></textarea>
+    <button type="submit" class="btn-primary" style="width:100%; padding:14px;"><i class="ti ti-mail" style="margin-right:6px;"></i>Register via Email</button>
+    <div class="form-success" id="form-success"><i class="ti ti-check" aria-hidden="true"></i> Opening your email app — just press send!</div>
   `;
   cForm.onsubmit = e => {
     e.preventDefault();
+    const val = id => (document.getElementById(id).value || '').trim();
+    const first = val('cf-first'), last = val('cf-last');
+    const email = val('cf-email'), phone = val('cf-phone');
+    const interest = val('cf-interest'), message = val('cf-message');
+
+    const subject = `Karting Registration — ${first} ${last}`.trim();
+    const body =
+      `New registration from the AZ Karting website:\n\n` +
+      `Name: ${first} ${last}\n` +
+      `Email: ${email}\n` +
+      `Phone: ${phone || '—'}\n` +
+      `Interested in: ${interest || '—'}\n\n` +
+      `Message:\n${message || '—'}\n`;
+
+    const mailto = `mailto:bckrentalchamp@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     const msg = document.getElementById('form-success');
     msg.style.display = 'block';
-    setTimeout(() => { window.open('https://t.me/nailmammadzada', '_blank'); msg.style.display = 'none'; }, 1000);
+    window.location.href = mailto;
+    setTimeout(() => { msg.style.display = 'none'; cForm.reset(); }, 4000);
   };
 
   cGrid.append(cInfo, cForm);
